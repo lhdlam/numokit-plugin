@@ -6,7 +6,7 @@ Agent phân tích & sửa code, lập trình viên gác cổng. Mọi thao tác 
 
 ```
 /plugin add marketplace github:lhdlam/numokit-plugin
-/plugin install numokit@lhdlam
+/plugin install numokit@lhdlam-numokit
 ```
 
 Chi tiết: [plugins/numokit/README.md](plugins/numokit/README.md).

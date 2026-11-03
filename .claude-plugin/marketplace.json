@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "lhdlam",
-  "description": "Claude Code plugin marketplace — numokit: AI dev toolkit for developers under a unified /numokit:* namespace.",
+  "name": "lhdlam-numokit",
+  "description": "Claude Code plugin marketplace — numokit: AI dev toolkit. Separate from the lhdlam marketplace that hosts testkit; marketplaces are keyed by name, so each repo needs its own.",
   "owner": {
     "name": "lhdlam"
   },
@@ -16,7 +16,9 @@
         "ref": "main"
       },
       "category": "development",
-      "author": { "name": "lhdlam" },
+      "author": {
+        "name": "lhdlam"
+      },
       "homepage": "https://github.com/lhdlam/numokit-plugin/tree/main/plugins/numokit"
     }
   ]

@@ -27,6 +27,15 @@ if command -v jq >/dev/null 2>&1; then
         && ok "marketplace points at plugins/numokit" || bad "marketplace source.path is wrong"
     [[ "$(jq -r '.name' "$ROOT/.claude-plugin/plugin.json")" == "numokit" ]] \
         && ok "plugin is named numokit" || bad "plugin name is wrong"
+    # Claude Code keys marketplaces by the declared name: reusing "lhdlam" would
+    # silently overwrite the testkit marketplace registration on every add.
+    mp="$(jq -r '.name' "$REPO/.claude-plugin/marketplace.json")"
+    [[ "$mp" != "lhdlam" ]] \
+        && ok "marketplace name ($mp) does not collide with testkit's" \
+        || bad "marketplace name 'lhdlam' collides with the testkit marketplace"
+    grep -q "numokit@$mp" "$ROOT/README.md" \
+        && ok "README install command matches the marketplace name" \
+        || bad "README install command does not match marketplace name '$mp'"
 else
     echo "  skip: jq missing — JSON checks skipped"
 fi

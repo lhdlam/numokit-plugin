@@ -44,7 +44,7 @@
 ### Claude Code
 ```
 /plugin add marketplace github:lhdlam/numokit-plugin
-/plugin install numokit@lhdlam
+/plugin install numokit@lhdlam-numokit
 ```
 
 ### Cursor
