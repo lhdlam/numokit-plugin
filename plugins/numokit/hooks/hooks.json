@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${NUMOKIT_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/hooks/session-start.sh\"",
+            "async": false
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${NUMOKIT_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/hooks/pre-tool-gate.sh\"",
+            "async": false
+          }
+        ]
+      }
+    ]
+  }
+}

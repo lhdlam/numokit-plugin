@@ -1,0 +1,23 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "lhdlam",
+  "description": "Claude Code plugin marketplace — numokit: AI dev toolkit for developers under a unified /numokit:* namespace.",
+  "owner": {
+    "name": "lhdlam"
+  },
+  "plugins": [
+    {
+      "name": "numokit",
+      "description": "AI dev toolkit. Analyse a task, measure its blast radius, fix bugs, refactor safely, detect code/spec drift and keep the codebase clean — every code-touching step behind a human gate. Agent analyses and edits; the developer approves. Clean handover code: no comments, no invented identifier codes.",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/lhdlam/numokit-plugin.git",
+        "path": "plugins/numokit",
+        "ref": "main"
+      },
+      "category": "development",
+      "author": { "name": "lhdlam" },
+      "homepage": "https://github.com/lhdlam/numokit-plugin/tree/main/plugins/numokit"
+    }
+  ]
+}
