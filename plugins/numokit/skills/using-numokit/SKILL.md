@@ -67,8 +67,9 @@ Và nhắc lại luật #9 — **trong code không có comment tiếng Việt**,
 | `/numokit:fixbug <mô tả bug>` | Chẩn đoán → **hỏi (gate)** → sửa code + regression test → xác minh | **CÓ** |
 | `/numokit:refactor <mục tiêu>` | Đo ảnh hưởng → **gate** → sửa từng bước → test xác minh không đổi hành vi | **CÓ** |
 | `/numokit:cleanup [phạm vi]` | Quét sạch repo theo luật #7–#12 → **gate** → xoá | **CÓ** |
+| `/numokit:feedback <link PR>` | Nhận feedback khách trên PR → **gate** → sửa code → soạn trả lời **song ngữ en/jp** | **CÓ** |
 
-**Quy tắc chung:** 5 lệnh đầu chỉ đọc, chạy thoải mái. 3 lệnh sau **đều dừng ở human gate** trước khi
+**Quy tắc chung:** 5 lệnh đầu chỉ đọc, chạy thoải mái. 4 lệnh sau **đều dừng ở human gate** trước khi
 sửa. Riêng `review-pr` tuy chỉ đọc nhưng **đăng comment là hành vi công khai** → luôn hỏi trước khi đăng. Artifact kết thúc bằng `> Review: PENDING`; người duyệt đổi thành `> Review: APPROVED`.
 
 ## Artifact & review gate

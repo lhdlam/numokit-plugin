@@ -38,8 +38,9 @@
 | `/numokit:fixbug <mô tả bug>` | Chẩn đoán → **hỏi (gate)** → sửa root cause + regression test → xác minh | **CÓ** |
 | `/numokit:refactor <mục tiêu>` | Đo ảnh hưởng → lưới an toàn → **gate** → sửa từng bước xanh | **CÓ** |
 | `/numokit:cleanup [phạm vi]` | Quét sạch theo luật #7–#12 → báo cáo → **gate** → xoá | **CÓ** |
+| `/numokit:feedback <link PR>` | Nhận feedback khách → **gate** → sửa code → trả lời **song ngữ en/jp**, không tự đăng | **CÓ** |
 
-5 lệnh đầu **chỉ đọc**, chạy thoải mái. 3 lệnh sau **đều dừng ở human gate**.
+5 lệnh đầu **chỉ đọc**, chạy thoải mái. 4 lệnh sau **đều dừng ở human gate**.
 `review-pr` chỉ đọc, nhưng **không bao giờ tự đăng comment** — luôn trình bản nháp để duyệt.
 
 ## Cài đặt
@@ -71,7 +72,7 @@ hiện thực theo "Các bước đề xuất"   (hoặc /numokit:fixbug · /num
 ## Artifact & review gate
 
 Artifact sống trong `${NUMOKIT_ROOT:-docs/numokit}/`: `plan-*.md`, `impact-*.md`, `spec-drift.md`,
-`review-*.md`, `pr-review-*.md`, `bug-fix-*.md`, `refactor-*.md`, `cleanup-*.md`, `open-questions.md`.
+`review-*.md`, `pr-review-*.md`, `pr-feedback-*.md`, `bug-fix-*.md`, `refactor-*.md`, `cleanup-*.md`, `open-questions.md`.
 
 Mỗi artifact kết thúc bằng `> Review: PENDING`; người duyệt đổi thành `> Review: APPROVED`.
 
@@ -82,7 +83,7 @@ còn `plan-*.md` ở trạng thái `PENDING`. Plan hết dùng thì xoá file.
 ## Ngôn ngữ (en/vi)
 
 Ưu tiên: yêu cầu trực tiếp của user > `NUMOKIT_LANG` env > `.numokit-lang` > `vi`.
-Áp cho **artifact và giao tiếp**. **Ngoại lệ:** comment của `/numokit:review-pr` luôn song ngữ **en/jp**, không theo `lang`. Code, tên định danh, từ khoá framework luôn tiếng Anh — và nhắc lại
+Áp cho **artifact và giao tiếp**. **Ngoại lệ:** comment của `/numokit:review-pr` và `/numokit:feedback` luôn song ngữ **en/jp**, không theo `lang`. Code, tên định danh, từ khoá framework luôn tiếng Anh — và nhắc lại
 luật #9: **trong code không có comment nào cả**.
 
 ## Quan hệ với testkit

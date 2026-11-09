@@ -65,6 +65,17 @@ chk "skills/review-pr/SKILL.md" "GIỮ NỘI BỘ, KHÔNG gửi khách" "review-
 chk "skills/review-pr/SKILL.md" "để nội bộ" "review-pr defaults an unclear point to internal"
 chk "commands/review-pr.md" "for the customer to read" "review-pr command states the audience"
 
+# address-feedback: judge the feedback, never silently skip, gate before editing
+chk "skills/address-feedback/SKILL.md" "không phải MỆNH LỆNH"      "feedback is judged, not executed"
+chk "skills/address-feedback/SKILL.md" "im lặng bỏ qua"            "every comment gets a status"
+chk "skills/address-feedback/SKILL.md" "HUMAN GATE"                "address-feedback gates before editing"
+chk "skills/address-feedback/SKILL.md" "KHÔNG bịa là đã sửa"       "never claims an unverified fix"
+chk "skills/address-feedback/SKILL.md" "TUYỆT ĐỐI không tự làm"    "destructive feedback stops for the user"
+chk "skills/address-feedback/SKILL.md" "inline"                    "collects inline review comments too"
+chk "skills/address-feedback/SKILL.md" "KHÔNG tự đăng"             "address-feedback never posts on its own"
+chk "skills/address-feedback/SKILL.md" "現状維持"                   "reply has a kept-as-is status in Japanese"
+chk "hooks/pre-tool-gate.sh" "address-feedback"                    "gate hook covers address-feedback"
+
 # Read-only skills must say so
 for s in plan-change impact spec-sync review-requirements review-pr; do
     grep -qiE "CHỈ ĐỌC|read-only" "$ROOT/skills/$s/SKILL.md" \

@@ -11,8 +11,8 @@
 # skills run exactly as before; once a plan exists it must be signed off before
 # code gets edited from it. A plan that no longer applies can just be deleted.
 #
-# Gated skills: fixbug, refactor, cleanup (every skill that edits source).
-# Not gated: plan-change, impact, spec-sync (read-only).
+# Gated skills: fixbug, refactor, cleanup, address-feedback (every skill that edits source).
+# Not gated: plan-change, impact, spec-sync, review-requirements, review-pr (read-only).
 #
 # Fail-open: jq missing, empty/malformed stdin, skill not gated, or no numokit
 # artifacts root. Cursor has no enforced PreToolUse hook, so the skills self-check
@@ -32,7 +32,7 @@ skill="$(printf '%s' "$input" | jq -r '.tool_input.skill // ""' 2>/dev/null || e
 skill="${skill#numokit:}"
 
 case "$skill" in
-    fixbug|refactor|cleanup) ;;
+    fixbug|refactor|cleanup|address-feedback) ;;
     *) exit 0 ;;
 esac
 
