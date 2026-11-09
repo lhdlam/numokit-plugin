@@ -33,11 +33,12 @@
 | `/numokit:plan <task>` | Phân tích task → đo ảnh hưởng 6 hạng mục → so khớp spec → `plan-<slug>.md` 🚦 | không |
 | `/numokit:impact <thay đổi>` | Đo blast radius: module · API · schema · vùng dùng chung · test · tài liệu | không |
 | `/numokit:spec-sync [phạm vi]` | Dò code đã trôi khỏi tài liệu (hai chiều) → `spec-drift.md` | không |
+| `/numokit:review <nhánh\|PR>` | Đối chiếu code vừa làm với **yêu cầu của khách** → verdict từng yêu cầu | không |
 | `/numokit:fixbug <mô tả bug>` | Chẩn đoán → **hỏi (gate)** → sửa root cause + regression test → xác minh | **CÓ** |
 | `/numokit:refactor <mục tiêu>` | Đo ảnh hưởng → lưới an toàn → **gate** → sửa từng bước xanh | **CÓ** |
 | `/numokit:cleanup [phạm vi]` | Quét sạch theo luật #7–#12 → báo cáo → **gate** → xoá | **CÓ** |
 
-3 lệnh đầu **chỉ đọc**, chạy thoải mái. 3 lệnh sau **đều dừng ở human gate**.
+4 lệnh đầu **chỉ đọc**, chạy thoải mái. 3 lệnh sau **đều dừng ở human gate**.
 
 ## Cài đặt
 
@@ -58,6 +59,8 @@ cưỡng chế → **gate là advisory** (agent tự giác kiểm dòng `> Revie
         ↓
 hiện thực theo "Các bước đề xuất"   (hoặc /numokit:fixbug · /numokit:refactor)
         ↓
+/numokit:review <nhánh>             → đối chiếu code vừa làm với yêu cầu khách  🚦 duyệt
+        ↓
 /numokit:impact <nhánh>             → đo lại blast radius thực tế của diff
         ↓
 /numokit:cleanup <phạm vi>          → dọn sạch trước khi bàn giao               🚦 duyệt
@@ -66,7 +69,7 @@ hiện thực theo "Các bước đề xuất"   (hoặc /numokit:fixbug · /num
 ## Artifact & review gate
 
 Artifact sống trong `${NUMOKIT_ROOT:-docs/numokit}/`: `plan-*.md`, `impact-*.md`, `spec-drift.md`,
-`bug-fix-*.md`, `refactor-*.md`, `cleanup-*.md`, `open-questions.md`.
+`review-*.md`, `bug-fix-*.md`, `refactor-*.md`, `cleanup-*.md`, `open-questions.md`.
 
 Mỗi artifact kết thúc bằng `> Review: PENDING`; người duyệt đổi thành `> Review: APPROVED`.
 

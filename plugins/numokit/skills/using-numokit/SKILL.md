@@ -62,11 +62,12 @@ Và nhắc lại luật #9 — **trong code không có comment tiếng Việt**,
 | `/numokit:plan <task>` | Phân tích task → đo ảnh hưởng → so khớp spec → `plan-<slug>.md` 🚦 | không (chỉ đọc) |
 | `/numokit:impact <thay đổi>` | Đo blast radius phía code: module · API · DB · vùng dùng chung | không (chỉ đọc) |
 | `/numokit:spec-sync [phạm vi]` | Dò code đã trôi khỏi tài liệu → `spec-drift.md` | không (chỉ đọc) |
+| `/numokit:review <nhánh\|PR>` | Đối chiếu code vừa làm với **yêu cầu của khách** → verdict từng yêu cầu | không (chỉ đọc) |
 | `/numokit:fixbug <mô tả bug>` | Chẩn đoán → **hỏi (gate)** → sửa code + regression test → xác minh | **CÓ** |
 | `/numokit:refactor <mục tiêu>` | Đo ảnh hưởng → **gate** → sửa từng bước → test xác minh không đổi hành vi | **CÓ** |
 | `/numokit:cleanup [phạm vi]` | Quét sạch repo theo luật #7–#12 → **gate** → xoá | **CÓ** |
 
-**Quy tắc chung:** 3 lệnh đầu chỉ đọc, chạy thoải mái. 3 lệnh sau **đều dừng ở human gate** trước khi
+**Quy tắc chung:** 4 lệnh đầu chỉ đọc, chạy thoải mái. 3 lệnh sau **đều dừng ở human gate** trước khi
 sửa. Artifact kết thúc bằng `> Review: PENDING`; người duyệt đổi thành `> Review: APPROVED`.
 
 ## Artifact & review gate

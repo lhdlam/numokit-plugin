@@ -1,6 +1,6 @@
 {
   "name": "numokit",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "AI dev toolkit. Analyse a task, measure its blast radius, fix bugs, refactor safely, detect code/spec drift and keep the codebase clean — every code-touching step behind a human gate. Agent analyses and edits; the developer approves. Clean handover code: no comments, no invented identifier codes, no suppressions.",
   "author": { "name": "lhdlam" },
   "homepage": "https://github.com/lhdlam/numokit-plugin",
