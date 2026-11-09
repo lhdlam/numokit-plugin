@@ -40,8 +40,16 @@ chk "skills/refactor/SKILL.md" "hoàn tác"                   "refactor reverts 
 chk "skills/cleanup/SKILL.md"  "Báo cáo trước, xoá sau"     "cleanup reports before deleting"
 chk "skills/cleanup/SKILL.md"  "SỬA nguyên nhân"            "cleanup pairs suppression removal with a fix"
 
+# review must never bend the requirement to fit the code
+chk "skills/review-requirements/SKILL.md" "KHÔNG nới yêu cầu cho khớp code" "review never softens a requirement"
+chk "skills/review-requirements/SKILL.md" "bằng chứng HAI PHÍA" "review cites both requirement and code"
+chk "skills/review-requirements/SKILL.md" "Không kiểm được" "review has an unverifiable verdict"
+chk "skills/review-requirements/SKILL.md" "Thừa" "review flags scope creep"
+chk "skills/review-requirements/SKILL.md" "KHÔNG bịa yêu cầu" "review refuses to infer requirements from the code"
+chk "skills/review-requirements/SKILL.md" "spec-sync" "review documents how it differs from spec-sync"
+
 # Read-only skills must say so
-for s in plan-change impact spec-sync; do
+for s in plan-change impact spec-sync review-requirements; do
     grep -qiE "CHỈ ĐỌC|read-only" "$ROOT/skills/$s/SKILL.md" \
         && ok "$s declares itself read-only" || bad "$s must declare read-only"
 done
