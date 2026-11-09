@@ -44,8 +44,8 @@ fi
 has "$ROOT/skills/using-numokit/SKILL.md" "using-numokit entry skill exists"
 
 # Every command must map to a skill that exists
-declare -a CMDS=(plan impact spec-sync review review-pr fixbug refactor cleanup)
-declare -a SKILLS=(plan-change impact spec-sync review-requirements review-pr fixbug refactor cleanup)
+declare -a CMDS=(plan impact spec-sync review review-pr fixbug refactor cleanup feedback)
+declare -a SKILLS=(plan-change impact spec-sync review-requirements review-pr fixbug refactor cleanup address-feedback)
 for i in "${!CMDS[@]}"; do
     has "$ROOT/commands/${CMDS[$i]}.md"          "command /numokit:${CMDS[$i]} exists"
     has "$ROOT/skills/${SKILLS[$i]}/SKILL.md"    "skill ${SKILLS[$i]} exists"
