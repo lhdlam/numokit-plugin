@@ -33,7 +33,7 @@ for s in fixbug refactor cleanup; do
 done
 
 # Read-only skills are never gated, even with a pending plan
-for s in plan-change impact spec-sync review-requirements; do
+for s in plan-change impact spec-sync review-requirements review-pr; do
     [[ "$(gate "$s")" == "0" ]] && ok "pending plan: read-only $s still allowed" \
                                 || bad "read-only $s must never be blocked"
 done

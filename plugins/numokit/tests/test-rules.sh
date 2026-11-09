@@ -48,8 +48,25 @@ chk "skills/review-requirements/SKILL.md" "Thừa" "review flags scope creep"
 chk "skills/review-requirements/SKILL.md" "KHÔNG bịa yêu cầu" "review refuses to infer requirements from the code"
 chk "skills/review-requirements/SKILL.md" "spec-sync" "review documents how it differs from spec-sync"
 
+# review-pr: bilingual, short, evidence-bound, and never posts on its own
+chk "skills/review-pr/SKILL.md" "日本語"            "review-pr drafts in Japanese too"
+chk "skills/review-pr/SKILL.md" "ENGLISH"           "review-pr drafts in English too"
+chk "skills/review-pr/SKILL.md" "KHÔNG dùng \`lang\`" "review-pr comment language overrides lang"
+chk "skills/review-pr/SKILL.md" "tối đa 7 mục"      "review-pr caps the number of points"
+chk "skills/review-pr/SKILL.md" "KHÔNG tự đăng"     "review-pr never posts without approval"
+chk "skills/review-pr/SKILL.md" "Im lặng không phải là đồng ý" "review-pr treats silence as refusal"
+chk "skills/review-pr/SKILL.md" "Thay đổi không khai báo" "review-pr flags undisclosed changes"
+chk "skills/review-pr/SKILL.md" "hạ thành"          "review-pr demotes unevidenced points to questions"
+chk "commands/review-pr.md" "never posts"           "review-pr command states it never posts"
+chk "skills/review-pr/SKILL.md" "ĐỐI TƯỢNG ĐỌC LÀ KHÁCH HÀNG" "review-pr writes for the customer"
+chk "skills/review-pr/SKILL.md" "ビジネス敬体"        "review-pr uses business keigo"
+chk "skills/review-pr/SKILL.md" "クッション言葉"       "review-pr cushions how issues are raised"
+chk "skills/review-pr/SKILL.md" "GIỮ NỘI BỘ, KHÔNG gửi khách" "review-pr keeps style nits internal"
+chk "skills/review-pr/SKILL.md" "để nội bộ" "review-pr defaults an unclear point to internal"
+chk "commands/review-pr.md" "for the customer to read" "review-pr command states the audience"
+
 # Read-only skills must say so
-for s in plan-change impact spec-sync review-requirements; do
+for s in plan-change impact spec-sync review-requirements review-pr; do
     grep -qiE "CHỈ ĐỌC|read-only" "$ROOT/skills/$s/SKILL.md" \
         && ok "$s declares itself read-only" || bad "$s must declare read-only"
 done
