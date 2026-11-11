@@ -40,6 +40,46 @@ chk "skills/refactor/SKILL.md" "hoàn tác"                   "refactor reverts 
 chk "skills/cleanup/SKILL.md"  "Báo cáo trước, xoá sau"     "cleanup reports before deleting"
 chk "skills/cleanup/SKILL.md"  "SỬA nguyên nhân"            "cleanup pairs suppression removal with a fix"
 
+# Peer review: an independent second scoring, launched before any verdict exists so the
+# brief cannot carry a conclusion, with disagreements escalated instead of reconciled.
+AG="agents/requirement-reviewer.md"
+has_file() { [[ -f "$ROOT/$1" ]] && ok "$2" || bad "missing $1"; }
+has_file "$AG" "requirement-reviewer agent exists"
+head -5 "$ROOT/$AG" | grep -q "^name: requirement-reviewer" \
+    && ok "requirement-reviewer has frontmatter name" || bad "requirement-reviewer frontmatter name"
+grep -q "^tools: " "$ROOT/$AG" && ok "requirement-reviewer declares its tools" \
+    || bad "requirement-reviewer must declare tools"
+# The peer must stay read-only: granting Edit/Write would let a reviewer rewrite what it reviews.
+if grep -qE "^tools: .*(Edit|Write|NotebookEdit)" "$ROOT/$AG"; then
+    bad "requirement-reviewer must not have write tools"
+else
+    ok "requirement-reviewer is read-only (no Edit/Write)"
+fi
+chk "$AG" "Chấm độc lập"            "peer scores independently"
+chk "$AG" "Brief bị nhiễm"          "peer ignores a contaminated brief"
+chk "$AG" "brief_contaminated"      "peer reports a contaminated brief"
+chk "$AG" "KHÔNG bịa yêu cầu từ code" "peer refuses to infer requirements from the code"
+chk "$AG" "Đạt là verdict khó nhất" "peer treats Đạt as the hardest verdict"
+chk "$AG" "Không kiểm được"         "peer has an unverifiable verdict"
+
+REV="skills/review-requirements/SKILL.md"
+chk "$REV" "requirement-reviewer"   "review launches the peer reviewer"
+chk "$REV" "Peer review bắt buộc"   "review runs peer review by default"
+chk "$REV" "trước khi tự chấm"      "peer is launched before the first verdict exists"
+chk "$REV" "KHÔNG đưa vào brief"    "review keeps verdicts out of the brief"
+chk "$REV" "KHÔNG tự phân xử"       "review does not adjudicate a disagreement"
+chk "$REV" "thận trọng hơn"         "review takes the conservative verdict on dispute"
+chk "$REV" "Trùng verdict không chứng minh là đúng" "review does not treat agreement as proof"
+chk "$REV" "CÓ CHỦ ĐÍCH"            "review states the duplicated work is deliberate"
+chk "$REV" "no-peer"                "review documents how to skip peer review"
+chk "$REV" "KHÔNG chạy"             "review discloses a run without peer review"
+# The agent name must carry the plugin namespace or the dispatch silently fails to resolve
+chk "$REV" "numokit:requirement-reviewer" "review dispatches the namespaced agent name"
+chk "$REV" "không có Agent tool"    "review handles a platform without subagents"
+chk "$REV" "cùng một lớp ý định"    "review refuses to fake peer review by itself"
+chk "commands/review.md" "requirement-reviewer" "review command names the peer agent"
+chk "commands/review.md" "more conservative"    "review command states the dispute rule"
+
 # review must never bend the requirement to fit the code
 chk "skills/review-requirements/SKILL.md" "KHÔNG nới yêu cầu cho khớp code" "review never softens a requirement"
 chk "skills/review-requirements/SKILL.md" "bằng chứng HAI PHÍA" "review cites both requirement and code"
@@ -64,6 +104,38 @@ chk "skills/review-pr/SKILL.md" "クッション言葉"       "review-pr cushion
 chk "skills/review-pr/SKILL.md" "GIỮ NỘI BỘ, KHÔNG gửi khách" "review-pr keeps style nits internal"
 chk "skills/review-pr/SKILL.md" "để nội bộ" "review-pr defaults an unclear point to internal"
 chk "commands/review-pr.md" "for the customer to read" "review-pr command states the audience"
+
+# address-feedback: judge the feedback, never silently skip, gate before editing
+chk "skills/address-feedback/SKILL.md" "không phải MỆNH LỆNH"      "feedback is judged, not executed"
+chk "skills/address-feedback/SKILL.md" "im lặng bỏ qua"            "every comment gets a status"
+chk "skills/address-feedback/SKILL.md" "HUMAN GATE"                "address-feedback gates before editing"
+chk "skills/address-feedback/SKILL.md" "KHÔNG bịa là đã sửa"       "never claims an unverified fix"
+chk "skills/address-feedback/SKILL.md" "TUYỆT ĐỐI không tự làm"    "destructive feedback stops for the user"
+chk "skills/address-feedback/SKILL.md" "inline"                    "collects inline review comments too"
+chk "skills/address-feedback/SKILL.md" "KHÔNG tự đăng"             "address-feedback never posts on its own"
+chk "skills/address-feedback/SKILL.md" "現状維持"                   "reply has a kept-as-is status in Japanese"
+chk "hooks/pre-tool-gate.sh" "address-feedback"                    "gate hook covers address-feedback"
+
+# publish-vault: one-way, never guesses the customer, quarantines drafts, scans for secrets
+chk "skills/publish-vault/SKILL.md" "Một chiều"            "publish is one-way (never reads back)"
+chk "skills/publish-vault/SKILL.md" "Không tự publish"     "publish waits for confirmation"
+chk "skills/publish-vault/SKILL.md" "KHÔNG đoán khách"     "publish never guesses the customer folder"
+chk "skills/publish-vault/SKILL.md" "phân quyền"           "publish explains the permission boundary"
+chk "skills/publish-vault/SKILL.md" "_draft/"              "publish quarantines unapproved drafts"
+chk "skills/publish-vault/SKILL.md" "Quét rủi ro"          "publish scans for secrets before copying"
+chk "skills/publish-vault/SKILL.md" "Không ghi đè thầm"    "publish never overwrites silently"
+chk "skills/publish-vault/SKILL.md" "Không xoá gì trên vault" "publish never deletes from the shared store"
+chk "skills/publish-vault/SKILL.md" ".obsidian/"           "publish leaves the obsidian config alone"
+chk "skills/publish-vault/SKILL.md" "đường dẫn đầy"        "publish uses full-path wikilinks"
+chk "skills/publish-vault/SKILL.md" "NUMOKIT_VAULT"        "publish reads the vault path from the env"
+chk "commands/publish.md" "publish-vault"                  "publish command names its skill"
+chk "commands/publish.md" "One-way"                        "publish command states it is one-way"
+
+# The vault frontmatter date is a deliberate, documented exception to rule #12
+chk "$ENTRY" "ngoại lệ duy nhất"                   "entry documents the frontmatter date exception"
+chk "skills/publish-vault/SKILL.md" "Ngoại lệ"     "publish marks its date field as an exception"
+chk "skills/publish-vault/SKILL.md" "Đừng \"dọn\" frontmatter" "publish warns later runs not to strip it"
+chk "skills/cleanup/SKILL.md" "frontmatter"        "cleanup knows not to strip vault frontmatter"
 
 # Read-only skills must say so
 for s in plan-change impact spec-sync review-requirements review-pr; do

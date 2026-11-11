@@ -1,10 +1,10 @@
 {
   "name": "numokit",
-  "version": "0.3.0",
-  "description": "AI dev toolkit. Analyse a task, measure its blast radius, fix bugs, refactor safely, detect code/spec drift and keep the codebase clean — every code-touching step behind a human gate. Agent analyses and edits; the developer approves. Clean handover code: no comments, no invented identifier codes, no suppressions.",
+  "version": "0.6.0",
+  "description": "AI dev toolkit. Analyse a task, measure its blast radius, fix bugs, refactor safely, detect code/spec drift, keep the codebase clean and publish the resulting documents to a shared team vault — every code-touching step behind a human gate. Agent analyses and edits; the developer approves. Clean handover code: no comments, no invented identifier codes, no suppressions.",
   "author": { "name": "lhdlam" },
   "homepage": "https://github.com/lhdlam/numokit-plugin",
   "repository": "https://github.com/lhdlam/numokit-plugin",
   "license": "MIT",
-  "keywords": ["numokit", "dev", "bugfix", "refactor", "impact-analysis", "spec-drift", "clean-code", "code-quality", "cursor"]
+  "keywords": ["numokit", "dev", "bugfix", "refactor", "impact-analysis", "spec-drift", "clean-code", "code-quality", "obsidian", "documentation", "cursor"]
 }

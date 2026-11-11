@@ -44,6 +44,10 @@ phân tích, trình phương án, hỏi, rồi **chờ duyệt** mới sửa.
     ghi chú quyết định của khách, hay chỉ thị tắt lint ở **BẤT KỲ đâu** → **XOÁ NGAY** trong cùng lần
     sửa. Không giới hạn phạm vi, không hỏi lại, không để "dọn sau".
 
+> **Một ngoại lệ duy nhất của luật #12:** frontmatter YAML trên **bản artifact đã publish lên vault**
+> (xem `/numokit:publish`) được mang trường `published: <ngày>`. Đó là metadata tài liệu lưu trữ, không
+> phải comment trong code — **đừng dọn nó**. Mọi code và mọi bản local vẫn giữ nguyên luật #7–#12.
+
 ## Ngôn ngữ (en/vi)
 
 Thứ tự ưu tiên khi xác định `lang`: yêu cầu trực tiếp của user > `NUMOKIT_LANG` env >
@@ -62,20 +66,45 @@ Và nhắc lại luật #9 — **trong code không có comment tiếng Việt**,
 | `/numokit:plan <task>` | Phân tích task → đo ảnh hưởng → so khớp spec → `plan-<slug>.md` 🚦 | không (chỉ đọc) |
 | `/numokit:impact <thay đổi>` | Đo blast radius phía code: module · API · DB · vùng dùng chung | không (chỉ đọc) |
 | `/numokit:spec-sync [phạm vi]` | Dò code đã trôi khỏi tài liệu → `spec-drift.md` | không (chỉ đọc) |
-| `/numokit:review <nhánh\|PR>` | Đối chiếu code vừa làm với **yêu cầu của khách** → verdict từng yêu cầu | không (chỉ đọc) |
+| `/numokit:review <nhánh\|PR>` | Đối chiếu code vừa làm với **yêu cầu của khách** → verdict từng yêu cầu, **chấm 2 lượt độc lập** (peer review) | không (chỉ đọc) |
 | `/numokit:review-pr <link PR>` | Nhận xét PR từ link → comment **song ngữ en/jp**, có dẫn chứng (không tự đăng) | không (chỉ đọc) |
 | `/numokit:fixbug <mô tả bug>` | Chẩn đoán → **hỏi (gate)** → sửa code + regression test → xác minh | **CÓ** |
 | `/numokit:refactor <mục tiêu>` | Đo ảnh hưởng → **gate** → sửa từng bước → test xác minh không đổi hành vi | **CÓ** |
 | `/numokit:cleanup [phạm vi]` | Quét sạch repo theo luật #7–#12 → **gate** → xoá | **CÓ** |
+| `/numokit:feedback <link PR>` | Nhận feedback khách trên PR → **gate** → sửa code → soạn trả lời **song ngữ en/jp** | **CÓ** |
+| `/numokit:publish [phạm vi]` | Đẩy artifact đã xong lên **Obsidian vault** dùng chung + sinh index | không (ghi ra kho) |
 
-**Quy tắc chung:** 5 lệnh đầu chỉ đọc, chạy thoải mái. 3 lệnh sau **đều dừng ở human gate** trước khi
-sửa. Riêng `review-pr` tuy chỉ đọc nhưng **đăng comment là hành vi công khai** → luôn hỏi trước khi đăng. Artifact kết thúc bằng `> Review: PENDING`; người duyệt đổi thành `> Review: APPROVED`.
+**Quy tắc chung:** 5 lệnh đầu chỉ đọc, chạy thoải mái. 4 lệnh sửa code **đều dừng ở human gate** trước
+khi sửa. Hai lệnh còn lại không sửa code nhưng **đưa nội dung ra ngoài** → cũng luôn phải xác nhận:
+`review-pr` vì đăng comment là hành vi công khai, `publish` vì đẩy tài liệu của khách cho cả team đọc.
+Artifact kết thúc bằng `> Review: PENDING`; người duyệt đổi thành `> Review: APPROVED`.
+
+## Peer review (`/numokit:review`)
+
+Agent vừa viết code biết mình **định** làm gì, nên đọc diff qua lớp ý định đó → thấy "đạt" ở chỗ thực
+ra chưa. `/numokit:review` vì vậy mở thêm agent `requirement-reviewer` chấm lại **độc lập**:
+
+- Phóng **ngay sau khi có danh sách yêu cầu, trước khi có verdict nào** — brief không thể lọt kết luận,
+  và nó chạy song song nên không thêm thời gian chờ.
+- Brief chỉ gồm **yêu cầu + phạm vi + đường dẫn tài liệu**. Không verdict, không nhận định, không
+  "chỗ này chắc ổn". Agent nhận sẵn kết luận sẽ chỉ xác nhận lại kết luận đó.
+- **Lệch nhau → không bên nào thắng.** Lấy phía thận trọng hơn (`Đạt < Không kiểm được < Lệch/Thiếu`),
+  đánh dấu tranh chấp, nêu dẫn chứng hai bên, đẩy lên người.
+- **Khớp nhau chỉ là rủi ro thấp hơn, không phải bảo đảm** — hai agent cùng đọc sai một chỗ là chuyện
+  có thật.
 
 ## Artifact & review gate
 
 Artifact sống trong `${NUMOKIT_ROOT:-docs/numokit}/`. Mỗi artifact có dòng cuối
 `> Review: PENDING|APPROVED`. Trên **Claude Code**, `hooks/pre-tool-gate.sh` chặn skill sửa code khi
 còn `plan-*.md` PENDING. Trên **Cursor** gate là **advisory** — tự kiểm dòng `> Review:` trước khi đi tiếp.
+
+### Kho dùng chung (Obsidian vault)
+
+`$NUMOKIT_ROOT` là **nơi làm việc** — gate đọc dòng `> Review:` ở đây, nên bản local luôn là bản gốc.
+`/numokit:publish` đẩy bản đã xong sang một **Obsidian vault** dùng chung (`NUMOKIT_VAULT`) để cả team
+đọc. Vault là **bản publish một chiều**: sửa trực tiếp trên đó sẽ bị ghi đè lần publish sau. Thư mục
+`<khách>/<dự án>/` trên vault đồng thời là **ranh giới phân quyền** của drive.
 
 ## Slash command bridge (`/numokit:<name>`)
 

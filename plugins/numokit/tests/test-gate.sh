@@ -22,13 +22,13 @@ gate() {
 }
 
 # No plan → everything allowed
-for s in fixbug refactor cleanup; do
+for s in fixbug refactor cleanup address-feedback; do
     [[ "$(gate "$s")" == "0" ]] && ok "no plan: $s allowed" || bad "no plan must not block $s"
 done
 
 # Pending plan → code-touching skills blocked
 printf '# Plan: x\n> Review: PENDING\n' > "$TMP/docs/numokit/plan-x.md"
-for s in fixbug refactor cleanup; do
+for s in fixbug refactor cleanup address-feedback; do
     [[ "$(gate "$s")" == "1" ]] && ok "pending plan: $s blocked" || bad "pending plan must block $s"
 done
 

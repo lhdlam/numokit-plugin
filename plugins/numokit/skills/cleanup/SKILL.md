@@ -25,6 +25,9 @@ Mục tiêu: dọn **chủ động, một lượt, có kiểm soát** — thay v
    `// prettier-ignore`, pragma của trình biên dịch) **không phải comment thường** — phải xác minh.
 5. **Không đụng thứ không phải của mình.** Bỏ qua `vendor/`, `node_modules/`, thư mục build, file sinh
    tự động, và license header. Nêu rõ đã bỏ qua những gì.
+6. **Không dọn frontmatter của bản đã publish.** Artifact trên Obsidian vault (xem `/numokit:publish`)
+   mang frontmatter YAML có `published: <ngày>`. Đó là **metadata tài liệu lưu trữ**, là ngoại lệ có
+   chủ đích của luật #12 — **không** phải dấu ngày trong code. Giữ nguyên, kể cả khi quét vào vault.
 
 ## Bước 0 — Đầu vào & phạm vi
 
@@ -43,7 +46,7 @@ Tìm trong phạm vi, gom theo **6 nhóm**:
 | **Comment tiếng Việt** | comment chứa ký tự tiếng Việt | XOÁ |
 | **Mã định danh tự đặt** | `TC-xx`, `REQ-xx`, `BUG-xx`, `OQ-xx` trong code | XOÁ |
 | **Ghi chú quyết định khách** | tên khách, số hợp đồng/ticket, "khách chốt…", ngày quyết định | XOÁ |
-| **Dấu ngày / tác giả** | `// 02/10/2026`, `# author: ...`, `TODO(ai) 15/9` | XOÁ |
+| **Dấu ngày / tác giả** | `// 02/10/2026`, `# author: ...`, `TODO(ai) 15/9` | XOÁ — **trừ** frontmatter bản publish (luật #6) |
 | **Comment thừa** | comment lặp lại y hệt tên hàm, code bị comment-out, comment chết | XOÁ |
 | **Suppression** | `# noqa`, `# type: ignore`, `# pylint: disable`, `# fmt: off`, `// @ts-ignore`, `// @ts-nocheck`, `// @ts-expect-error`, `// eslint-disable*`, `// prettier-ignore` | XOÁ **+ sửa nguyên nhân**; không sửa được → GIỮ, đưa lên người |
 
