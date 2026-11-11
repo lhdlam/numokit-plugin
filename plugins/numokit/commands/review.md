@@ -1,8 +1,8 @@
 ---
 name: "numokit:review"
-description: Review code that was just written against what the customer asked for — a verdict per requirement (Đạt | Thiếu | Lệch | Thừa | Không kiểm được), each backed by a citation from both the requirement and the code. Read-only.
+description: Review code that was just written against what the customer asked for — scored twice, once by this agent and once by an independent peer-review subagent that never sees the first verdicts, with every disagreement flagged for a human. A verdict per requirement (Đạt | Thiếu | Lệch | Thừa | Không kiểm được), each backed by a citation from both the requirement and the code. Read-only.
 category: Development
-tags: [numokit, review, requirements, acceptance, self-check]
+tags: [numokit, review, requirements, acceptance, peer-review, self-check]
 ---
 
 Invoke the `review-requirements` skill using the Skill tool, passing the code scope the user named —
@@ -10,6 +10,21 @@ a branch/tag, a PR number, or nothing (which reviews the working tree diff).
 
 The skill answers one question: **did the code that was just written do what the customer asked?**
 It is read-only — a report, not an editing session.
+
+**It scores every requirement twice.** An agent that just wrote the code knows what it *meant* to
+build, so it reads the diff through that intention and sees requirements met that are not. So the skill
+also runs the `requirement-reviewer` subagent, which never sees the first set of verdicts and reads the
+diff itself. The subagent is launched **right after the requirement list exists and before any verdict
+is formed** — both so the brief cannot carry a conclusion, and so it works in parallel rather than
+adding wall-clock time. Duplicating the work here is the point, not waste.
+
+Neither reading wins a disagreement: the skill takes the **more conservative** verdict
+(`Đạt < Không kiểm được < Lệch/Thiếu`), marks the requirement as disputed, records what each side
+said with its evidence, and puts those items in front of the human first — two independent readings
+reaching different conclusions is the strongest available signal that the spot is genuinely ambiguous.
+Agreement is reported as lower risk, never as a guarantee. Anything the peer caught and the first pass
+missed is folded in with the credit stated. `--no-peer` skips it, and the report then says so, because
+a reader needs to know the result rests on a single reading.
 
 It first finds the requirements in a **real source**, preferring an APPROVED `plan-<slug>.md` (its
 scope was already agreed), then requirement documents, then a description the user pastes in. With no

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verify numokit's shape: manifests, the six skill/command pairs, and that every
+# Verify numokit's shape: manifests, every skill/command pair, and that each
 # command actually resolves to a skill that exists.
 set -uo pipefail
 
@@ -44,8 +44,8 @@ fi
 has "$ROOT/skills/using-numokit/SKILL.md" "using-numokit entry skill exists"
 
 # Every command must map to a skill that exists
-declare -a CMDS=(plan impact spec-sync review review-pr fixbug refactor cleanup feedback)
-declare -a SKILLS=(plan-change impact spec-sync review-requirements review-pr fixbug refactor cleanup address-feedback)
+declare -a CMDS=(plan impact spec-sync review review-pr fixbug refactor cleanup feedback publish)
+declare -a SKILLS=(plan-change impact spec-sync review-requirements review-pr fixbug refactor cleanup address-feedback publish-vault)
 for i in "${!CMDS[@]}"; do
     has "$ROOT/commands/${CMDS[$i]}.md"          "command /numokit:${CMDS[$i]} exists"
     has "$ROOT/skills/${SKILLS[$i]}/SKILL.md"    "skill ${SKILLS[$i]} exists"
