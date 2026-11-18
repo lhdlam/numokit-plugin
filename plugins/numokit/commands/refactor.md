@@ -18,6 +18,13 @@ which pin what the system does today even where that looks wrong. It refuses to 
 is already red. **It then stops at a human gate**, presenting the goal, the blast radius, what the net
 covers and — stated plainly — what it still cannot cover.
 
+With the **codebase-memory** MCP both halves get faster: `search_graph` and `trace_path` for the blast
+radius, and `trace_path` backwards from the symbol to find which tests actually cover it, which beats
+guessing from test filenames. Without the graph it works exactly as before — **an accelerator, never a
+dependency.** One result it will not take at face value is the graph reporting *no* test coverage:
+tests reached through fixtures, parametrization or dynamic names are invisible to it, so a claimed gap
+is grepped before any characterisation test is written on the strength of it.
+
 After approval it applies one transformation at a time, running the net after each; a red step is
 reverted rather than patched over. Bugs noticed along the way are recorded, never fixed inline, so the
 diff stays reviewable. Output is `refactor-<slug>.md` (`> Review: PENDING`).

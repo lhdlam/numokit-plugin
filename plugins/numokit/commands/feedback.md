@@ -22,6 +22,12 @@ customer already signed off, or suggest a separate ticket. Anything touching dat
 permissions stops for the user outright. Following a mistaken request politely still damages the
 product.
 
+With the **codebase-memory** MCP it locates each spot to change through the knowledge graph
+(`search_graph`, `get_code_snippet`); an inline comment that already points at `file:line` is read from
+source directly. Without the graph it greps, as before — **an accelerator, never a dependency** — and
+the `[graph]`/`[grep]` provenance stays in the internal notes and the saved draft, **never in the reply
+sent to the customer.**
+
 It then **stops at a human gate** with the full classification table before editing anything; the user
 can reclassify any item. After approval it fixes each approved point as a separate change, runs the
 tests, and reports what actually passed — an item it could not verify is never written up as "Fixed".

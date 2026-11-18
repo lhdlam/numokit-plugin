@@ -84,6 +84,44 @@ Mỗi artifact kết thúc bằng `> Review: PENDING`; người duyệt đổi t
 bình thường. Nhưng **đã lập plan thì phải duyệt**: `hooks/pre-tool-gate.sh` chặn 3 lệnh sửa code khi
 còn `plan-*.md` ở trạng thái `PENDING`. Plan hết dùng thì xoá file.
 
+## Knowledge graph (tùy chọn) — định vị code nhanh hơn
+
+Nếu phiên có MCP **codebase-memory**, các skill có bước tìm code sẽ dùng knowledge graph thay vì quét
+repo bằng grep. Không cài thì **mọi thứ chạy y như cũ** — graph là tăng tốc, không phải phụ thuộc.
+
+| Việc | Tool | Thay cho |
+|---|---|---|
+| Định vị symbol | `search_graph` | grep tên khắp repo |
+| Caller/callee **theo tầng** | `trace_path` | grep từng tầng, dễ sót |
+| Đọc thân symbol | `get_code_snippet` | mở cả file |
+| Tổng quan module | `get_architecture` | suy từ cây thư mục |
+| Kiểm path sắp trích dẫn | `check_index_coverage` | — (bắt buộc) |
+
+Tiền tố namespace tuỳ cách cài (`mcp__codebase-memory-mcp__…` hoặc `mcp__plugin_codebase-memory_…`) —
+skill dùng đúng tiền tố phiên đang có, không ghi cứng.
+
+**Bắt buộc quay về grep khi:** không có MCP · index chưa phủ path · tìm **chuỗi literal** (thông điệp
+lỗi, `noqa`, comment, i18n key) · **ranh giới động** (Qt signal/slot, DI, `getattr`, route string).
+
+> Hai trường hợp cuối **vẫn đánh dấu "cần xác minh"**. Graph không thấy ranh giới động nên nó trả về
+> **rỗng** — mà rỗng trông y như "không ai gọi". Đó là cách bỏ sót nguy hiểm nhất, nên ở các vùng này
+> skill grep thêm dù graph đã trả lời.
+
+Mọi `file:line` vẫn **xác minh từ source thật** (index có thể lỗi thời), và mỗi citation trong artifact
+mang hậu tố `[graph]` hoặc `[grep]` để người đọc biết nên tin tới đâu:
+
+```
+| Vùng dùng chung | formatCurrency dùng ở 14 nơi | Cao | app/util/money.ts:12 [graph] |
+| Module / file   | khởi tạo i18n               | TB  | app/i18n.ts:30 [grep · cần xác minh] |
+```
+
+Hai ngoại lệ có chủ đích:
+
+- **`/numokit:cleanup` không dùng graph** — cả 6 nhóm nó tìm đều là chuỗi literal trong comment và
+  directive, graph lập chỉ mục cấu trúc nên không thấy.
+- **Comment gửi khách** (`review-pr`, `feedback`) **không mang hậu tố `[graph]`/`[grep]`** — nguồn bằng
+  chứng là thông tin nội bộ, chỉ nằm trong ghi chú và bản nháp lưu lại.
+
 ## Peer review — `/numokit:review` chấm hai lượt
 
 Agent vừa viết code biết mình **định** làm gì, nên nó đọc diff qua lớp ý định đó và thấy yêu cầu đã

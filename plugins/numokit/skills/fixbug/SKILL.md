@@ -10,7 +10,7 @@ Mục tiêu: từ mô tả bug → **định vị nguyên nhân gốc** trong co
 mơ hồ, **sửa đúng root cause**, và **luôn** để lại regression test để bug không tái phát.
 
 > An toàn nằm ở **human gate bắt buộc**: không sửa một dòng code nào trước khi người dùng trả lời câu
-> hỏi và duyệt hướng sửa. Xem luật #1–#12 trong `using-numokit`.
+> hỏi và duyệt hướng sửa. Xem luật #1–#13 trong `using-numokit`.
 
 ## Luật cứng
 
@@ -37,6 +37,9 @@ mơ hồ, **sửa đúng root cause**, và **luôn** để lại regression test
 - **Nguồn yêu cầu:** tìm mục tài liệu định nghĩa hành vi đúng — trích `[SRS §4.2]`. Không có tài liệu →
   ghi rõ và dựa trên hành vi hợp lý, nêu giả định.
 - **Nguồn hiện thực:** tìm ĐÚNG chỗ phát sinh hành vi sai (`file:line`). Chỉ đọc vùng liên đới.
+  Có graph (luật #13) → `search_graph` định vị symbol, `get_code_snippet` đọc thân, `check_index_coverage`
+  trước khi trích dẫn. **Thông điệp lỗi / log / chuỗi hiển thị trong bug phải grep** — graph lập chỉ mục
+  cấu trúc, không phải nội dung chuỗi, và bug thường được mô tả bằng đúng chuỗi người dùng thấy.
 - **Cross-check** code ↔ tài liệu ↔ bug, rồi phân định:
 
 | Phân định | Nghĩa | Hành động |
@@ -54,6 +57,8 @@ Trước khi chạm code, trình bày gọn và **chờ trả lời**:
    phạm vi ảnh hưởng nào chấp nhận được?
 2. **Nhận định** root cause (kèm reference) — bug code hay spec issue.
 3. **Hướng sửa đề xuất** + **file sẽ đổi** + **blast radius/rủi ro** (còn gì dùng chung đoạn code đó).
+   Có graph → `trace_path` để biết ai đang gọi chỗ sắp sửa. Ranh giới động (Qt signal/slot, DI,
+   `getattr`, route string) graph không thấy → grep thêm, ghi **"cần xác minh"** ở gate.
 4. Nếu là spec issue → nêu rõ "sẽ KHÔNG sửa code", chờ người quyết.
 
 DỪNG. Không tiếp Bước 3 tới khi người dùng trả lời và duyệt.
@@ -68,7 +73,8 @@ DỪNG. Không tiếp Bước 3 tới khi người dùng trả lời và duyệt
   xem lại root cause.
 - **Tên test = mô tả hành vi đúng mà bug đã phá** (vd `không cho đăng nhập khi sai mật khẩu`).
   KHÔNG mã bug, KHÔNG comment.
-- Đặt cạnh test hiện có của module, theo đúng framework và convention của project.
+- Đặt cạnh test hiện có của module, theo đúng framework và convention của project. Có graph →
+  `trace_path` ngược từ symbol đang sửa để tìm test nào đang phủ nó, rồi đặt test mới cạnh đó.
 
 ## Bước 5 — Xác minh (evidence trước khi tuyên bố)
 - Chạy regression test + test liên quan của module.
@@ -81,7 +87,7 @@ DỪNG. Không tiếp Bước 3 tới khi người dùng trả lời và duyệt
 ```
 # Bug fix: <tiêu đề bug>
 ## Nội dung bug
-## Nguyên nhân gốc      (kèm reference: [SRS §x], [file:line])
+## Nguyên nhân gốc      (kèm reference: [SRS §x], [file:line] — hậu tố [graph] hoặc [grep])
 ## Thay đổi              (file đã sửa + tóm tắt; hoặc "spec issue — không sửa code")
 ## Regression test       (đường dẫn + tên test; đỏ trước / xanh sau)
 ## Xác minh              (lệnh + kết quả pass/fail)

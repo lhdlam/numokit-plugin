@@ -14,6 +14,13 @@ guessing), then measures the blast radius across six buckets — modules/files, 
 schema/data, shared code, existing tests, docs/spec — rating each High/Medium/Low with a real citation
 (`SRS §4.2`, `app/auth.ts:31`), or "cần xác minh" when the evidence is thin.
 
+With the **codebase-memory** MCP in the session it locates code through the knowledge graph —
+`search_graph` from the words in the task description, `get_code_snippet` to read the symbol rather
+than the whole file, `trace_path` for callers, `check_index_coverage` before citing a path. Without it,
+or where the index does not reach, it greps as before: **the graph is an accelerator, never a
+dependency**, and dynamic boundaries are grepped and marked "cần xác minh" regardless. Citations record
+whether the evidence came from the graph or from grep.
+
 It cross-checks task vs docs vs implementation three ways and raises every mismatch into
 `open-questions.md` rather than deciding alone, then writes `plan-<slug>.md` ending in
 `> Review: PENDING` and stops.

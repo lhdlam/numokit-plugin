@@ -11,7 +11,7 @@ viết dòng code nào. Đây là cổng chặn sớm nhất: bắt sai phạm v
 tốn công hiện thực.
 
 > **Pha này CHỈ ĐỌC. KHÔNG sửa code, KHÔNG tạo file nguồn.** Chỉ đọc, đo, hỏi và viết `plan-<slug>.md`.
-> **Ngôn ngữ:** plan + giao tiếp theo `lang`. Xem luật #1–#12 trong `using-numokit`.
+> **Ngôn ngữ:** plan + giao tiếp theo `lang`. Xem luật #1–#13 trong `using-numokit`.
 
 ## Luật cứng
 
@@ -27,14 +27,16 @@ tốn công hiện thực.
 Arg là **mô tả task** (tự do) HOẶC **nhánh/tag git** đã có code. Không có arg → hỏi lại.
 - Đặt `slug` kebab ngắn từ tiêu đề task (vd `them-export-csv`).
 - **Cách A — git diff**: `git diff --name-only <nhánh-chính>...<nhánh>`. Chắc chắn nhất.
-- **Cách B — mô tả**: từ mô tả định vị module/file/tài liệu liên quan. Không định vị được → HỎI.
+- **Cách B — mô tả**: từ mô tả định vị module/file/tài liệu liên quan. Có graph (luật #13) →
+  `search_graph` theo từ khoá trong mô tả. Không định vị được → HỎI, đừng đoán.
 
 ## Bước 1 — Phân tích task (đọc tối thiểu, KHÔNG quét cả repo)
 
 Trả lời 3 câu, mỗi câu kèm nguồn:
 - **Task yêu cầu gì?** (hành vi mong muốn, ràng buộc, tiêu chí chấp nhận)
 - **Tài liệu nói gì về vùng này?** (trích `SRS §x`; không có → ghi rõ "không có nguồn tài liệu")
-- **Hiện tại code đang làm gì?** (trích `file:line`)
+- **Hiện tại code đang làm gì?** (trích `file:line` — có graph thì `get_code_snippet` để đọc đúng
+  symbol thay vì mở cả file; `check_index_coverage` trước khi trích dẫn)
 
 ## Bước 2 — Đánh giá ảnh hưởng (blast radius)
 
@@ -57,6 +59,11 @@ Quét đủ **6 hạng mục**, không bị ảnh hưởng thì ghi "không" (đ
 
 Mức: **Cao** (phá vỡ tương thích / chạm luồng critical / đụng dữ liệu thật) · **Trung bình** (phải sửa
 theo) · **Thấp** (liên quan gián tiếp). Không đủ dữ kiện → **"cần xác minh"** kèm cách xác minh.
+
+Có graph → `trace_path` để lấy caller theo tầng (chính xác hơn grep tên trùng), `get_architecture` cho
+vùng dùng chung. **Ranh giới động** (Qt signal/slot, DI, `getattr`, i18n key, route string) graph không
+thấy → **grep thêm** và ghi **"cần xác minh"**; kết quả rỗng của graph ở đó không có nghĩa là an toàn.
+Mỗi citation ghi `[graph]` hoặc `[grep]` (luật #13).
 
 ## Bước 3 — So khớp spec & raise khi lệch
 

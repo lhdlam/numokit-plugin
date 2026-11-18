@@ -40,6 +40,18 @@ Gọi bằng **tiêu đề mô tả**, KHÔNG tự đặt mã định danh.
 Đọc code trong phạm vi, liệt kê **hành vi thực tế** kèm `file:line`.
 Chỉ đọc vùng liên đới — không quét cả repo.
 
+Có graph (luật #13) → `get_architecture` để nắm cấu trúc phạm vi trước, `search_graph` định vị từng
+symbol, `get_code_snippet` đọc thân. `check_index_coverage` trước khi trích dẫn.
+
+Hai lưu ý riêng cho skill này:
+- **Chiều "Code có, Tài liệu không"** (tính năng ma) dễ sót nhất nếu chỉ tin graph: hành vi gắn vào
+  Qt signal/slot, route string, i18n key hay DI **không hiện trong graph**. Phạm vi có các thứ đó →
+  **grep thêm**, và ghi **"cần xác minh"**.
+- `file:line` đưa vào báo cáo phải đọc từ source thật. Một dòng drift dẫn chứng sai sẽ đẩy người phân
+  xử đi sai hướng.
+
+Mỗi citation phía code ghi `[graph]` hoặc `[grep]`.
+
 ## Bước 3 — Đối chiếu hai chiều & phân loại
 
 | Loại | Nghĩa | Mức |
