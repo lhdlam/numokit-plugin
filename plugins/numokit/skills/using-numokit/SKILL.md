@@ -48,6 +48,48 @@ phân tích, trình phương án, hỏi, rồi **chờ duyệt** mới sửa.
 > (xem `/numokit:publish`) được mang trường `published: <ngày>`. Đó là metadata tài liệu lưu trữ, không
 > phải comment trong code — **đừng dọn nó**. Mọi code và mọi bản local vẫn giữ nguyên luật #7–#12.
 
+## Định vị code: graph trước, grep sau (luật #13)
+
+Khi phiên có MCP **codebase-memory** (knowledge graph của codebase), dùng nó để **định vị** thay vì
+quét repo bằng grep. Nhanh hơn, và quan trọng hơn: nó đi được **theo quan hệ gọi**, việc mà grep
+không làm được.
+
+| Việc | Tool | Thay cho |
+|---|---|---|
+| Định vị symbol (hàm, class, method) | `search_graph` | grep tên symbol khắp repo |
+| Tìm caller/callee **theo tầng** | `trace_path` | grep từng tầng, dễ sót và dễ lạc |
+| Đọc thân symbol đã định vị | `get_code_snippet` | mở cả file |
+| Tổng quan module / vùng dùng chung | `get_architecture` | suy từ cây thư mục |
+| **Kiểm path sắp trích dẫn có trong index** | `check_index_coverage` | — (bắt buộc, xem dưới) |
+
+Tiền tố namespace của tool **tuỳ cách cài** (`mcp__codebase-memory-mcp__…` hoặc
+`mcp__plugin_codebase-memory_…`). Dùng đúng tiền tố mà phiên đang có; **đừng** ghi cứng một tiền tố.
+
+### Bắt buộc quay về grep/glob khi
+
+1. **MCP không có trong phiên** — không có graph thì làm y như trước, không báo lỗi.
+2. **Index chưa phủ path** — `check_index_coverage` nói chưa phủ.
+3. **Tìm chuỗi literal** — thông điệp lỗi, `noqa`, comment, i18n key, text trong UI. Graph lập chỉ mục
+   **cấu trúc**, không phải nội dung chuỗi.
+4. **Ranh giới động** — Qt signal/slot, `getattr`/chuỗi tên hàm, i18n key, route string, DI container.
+   Graph **không thấy** các liên kết này.
+
+Trường hợp 3 và 4 **vẫn phải đánh dấu "cần xác minh"** như trước, dù có graph hay không. Graph im lặng
+ở ranh giới động là điều nguy hiểm nhất: nó trả về kết quả rỗng, nhìn như "không ai gọi".
+
+### Ba điều không được quên
+
+- **Graph là tăng tốc, KHÔNG phải phụ thuộc.** Mọi skill phải chạy được đầy đủ khi không cài
+  codebase-memory. Không bao giờ dừng vì thiếu graph.
+- **Mọi `file:line` phải xác minh từ source thật.** Graph cho biết *tìm ở đâu*; dòng trích dẫn phải đọc
+  từ file (`get_code_snippet` hoặc Read) trước khi viết vào artifact. Index có thể lỗi thời.
+- **Ghi rõ nguồn bằng chứng.** Mỗi citation trong artifact mang hậu tố `[graph]` hoặc `[grep]`:
+  ```
+  | Vùng dùng chung | formatCurrency dùng ở 14 nơi | Cao | app/util/money.ts:12 [graph] |
+  | Module / file   | khởi tạo i18n               | TB  | app/i18n.ts:30 [grep · cần xác minh] |
+  ```
+  Người đọc cần biết kết luận đến từ chỉ mục hay từ quét thật, để biết nên tin tới đâu.
+
 ## Ngôn ngữ (en/vi)
 
 Thứ tự ưu tiên khi xác định `lang`: yêu cầu trực tiếp của user > `NUMOKIT_LANG` env >

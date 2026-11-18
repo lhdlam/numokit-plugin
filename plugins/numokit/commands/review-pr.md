@@ -14,6 +14,14 @@ description never mentions (undisclosed changes), and does any of it contradict 
 checks for unannounced breaking changes, missing error paths, absent tests and clean-code violations —
 but only reports what it can point at.
 
+The diff itself comes from `gh`, so no graph is needed to read it — but to judge whether a changed API
+really breaks anything it needs to know who calls it, and with the **codebase-memory** MCP it follows
+that with `trace_path` instead of grepping for names. Without the graph it greps, as always: **an
+accelerator, never a dependency.** At a dynamic boundary the point is demoted to a question rather than
+asserted. The `[graph]`/`[grep]` provenance stays in the internal notes and the saved draft and is
+**kept out of the customer comment** — the client needs the finding and its location, not which tool
+found it.
+
 The comment is written **for the customer to read**, not as an internal dev note — the user sends it
 to the client through the PR. That shapes everything: a neutral professional register, Japanese in
 business keigo (です・ます with ご確認ください and cushioning phrases, never plain form or bare

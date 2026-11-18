@@ -10,7 +10,7 @@ Mục tiêu: đổi **cấu trúc** code mà **không đổi hành vi** — và 
 
 > Định nghĩa dùng xuyên suốt: **refactor = hành vi quan sát được KHÔNG đổi.** Nếu hành vi phải đổi thì
 > đó là **thay đổi tính năng**, không phải refactor → dừng lại, dùng `/numokit:plan`.
-> Xem luật #1–#12 trong `using-numokit`.
+> Xem luật #1–#13 trong `using-numokit`.
 
 ## Luật cứng
 
@@ -36,12 +36,20 @@ Mục tiêu mơ hồ kiểu "làm cho sạch hơn" → hỏi lại cho cụ th�
 Chạy phân tích như `/numokit:impact` trên vùng sắp sửa: module · API/hợp đồng công khai · schema ·
 vùng dùng chung · test hiện có · tài liệu. Mỗi dòng kèm `file:line` và mức Cao/Trung bình/Thấp.
 
+Có graph (luật #13) → `search_graph` định vị symbol, `trace_path` lấy caller theo tầng,
+`get_architecture` cho vùng dùng chung. **Ranh giới động** graph không thấy → grep thêm, ghi
+**"cần xác minh"**. Mỗi citation ghi `[graph]` hoặc `[grep]`.
+
 Đặc biệt nêu rõ: **có chạm API công khai không?** Nếu có, đó không còn là refactor nội bộ — người dùng
 ngoài có thể vỡ. Phải nêu ở gate.
 
 ## Bước 2 — Dựng lưới an toàn
 
-- Liệt kê test **hiện có** phủ vùng này (file + tên test).
+- Liệt kê test **hiện có** phủ vùng này (file + tên test). Có graph → `trace_path` **ngược** từ symbol
+  sắp sửa tới test đang gọi nó; chính xác hơn là đoán theo tên file test.
+- **Khoảng trống lưới mà graph báo là "không có test" phải grep lại trước khi tin.** Test gọi qua
+  fixture, parametrize, hay đặt tên động là ranh giới động — graph trả rỗng, và tin cái rỗng đó sẽ dẫn
+  tới viết characterisation test trùng, hoặc tệ hơn, kết luận sai là vùng này không có lưới.
 - **Khoảng trống không có test** → viết **characterisation test** ghim hành vi hiện tại trước khi sửa.
   Test này mô tả *hệ thống đang làm gì*, không phải *nên làm gì*. Gặp hành vi trông như bug → vẫn ghim
   đúng hành vi hiện tại, và ghi nó vào danh sách "nghi bug" cho Bước 6.

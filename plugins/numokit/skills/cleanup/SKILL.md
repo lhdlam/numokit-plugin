@@ -39,6 +39,10 @@ file sinh tự động (có header "generated"), license header ở đầu file.
 
 ## Bước 1 — Quét & phân loại
 
+> **Lệnh này dùng grep, KHÔNG dùng knowledge graph** — dù phiên có MCP codebase-memory. Cả 6 nhóm dưới
+> đây đều là **chuỗi literal** trong comment và directive; graph lập chỉ mục **cấu trúc** code nên
+> không thấy chúng. Đây là ngoại lệ có chủ đích của luật #13, không phải thiếu sót.
+
 Tìm trong phạm vi, gom theo **6 nhóm**:
 
 | Nhóm | Tìm gì | Xử lý |

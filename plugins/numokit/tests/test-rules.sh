@@ -9,6 +9,9 @@ PASS=0; FAIL=0
 ok()  { PASS=$((PASS+1)); echo "  ok: $1"; }
 bad() { FAIL=$((FAIL+1)); echo "  FAIL: $1"; }
 chk() { grep -q -- "$2" "$ROOT/$1" 2>/dev/null && ok "$3" || bad "$3 ($1)"; }
+# Wrap-insensitive variant: the docs wrap at ~100 columns, so a sentence-length
+# assertion would otherwise break whenever a line happens to fold.
+chkw() { tr -s '[:space:]' ' ' < "$ROOT/$1" 2>/dev/null | grep -q -- "$2" && ok "$3" || bad "$3 ($1)"; }
 
 ENTRY="skills/using-numokit/SKILL.md"
 
@@ -39,6 +42,64 @@ chk "skills/refactor/SKILL.md" "KHÔNG đổi hành vi"          "refactor must 
 chk "skills/refactor/SKILL.md" "hoàn tác"                   "refactor reverts a red step"
 chk "skills/cleanup/SKILL.md"  "Báo cáo trước, xoá sau"     "cleanup reports before deleting"
 chk "skills/cleanup/SKILL.md"  "SỬA nguyên nhân"            "cleanup pairs suppression removal with a fix"
+
+# Knowledge graph (codebase-memory MCP): graph-first for locating code, with a mandatory
+# fallback to grep. The graph must stay an accelerator — never a dependency.
+chk "$ENTRY" "graph trước, grep sau"   "entry states the graph-first order"
+chk "$ENTRY" "search_graph"            "entry names the symbol-lookup tool"
+chk "$ENTRY" "trace_path"              "entry names the caller-walk tool"
+chk "$ENTRY" "get_code_snippet"        "entry names the source-read tool"
+chk "$ENTRY" "get_architecture"        "entry names the overview tool"
+chk "$ENTRY" "check_index_coverage"    "entry requires coverage checks before citing"
+chk "$ENTRY" "KHÔNG phải phụ thuộc"    "entry states the graph is not a dependency"
+chk "$ENTRY" "ghi cứng một tiền tố"    "entry refuses to hardcode the MCP namespace"
+chk "$ENTRY" "xác minh từ source thật" "entry requires citations verified against real source"
+chk "$ENTRY" "ranh giới động"          "entry lists dynamic boundaries as a grep fallback"
+chk "$ENTRY" "chuỗi literal"           "entry lists literal strings as a grep fallback"
+chk "$ENTRY" "cần xác minh"            "entry keeps the unverified marker on fallbacks"
+chk "$ENTRY" "\[graph\]"               "entry records graph provenance"
+chk "$ENTRY" "\[grep\]"                "entry records grep provenance"
+
+# Every skill with a code-locating step must be graph-aware AND keep its grep fallback
+for s in impact plan-change fixbug refactor review-requirements spec-sync review-pr address-feedback; do
+    grep -qE "search_graph|trace_path|get_code_snippet|get_architecture" "$ROOT/skills/$s/SKILL.md" \
+        && ok "$s uses the graph to locate code" || bad "$s must use the graph"
+    grep -qi "grep" "$ROOT/skills/$s/SKILL.md" \
+        && ok "$s keeps a grep fallback" || bad "$s must keep a grep fallback"
+    grep -q "#13" "$ROOT/skills/$s/SKILL.md" \
+        && ok "$s points at the graph rule" || bad "$s must reference rule #13"
+done
+
+# The blast-radius walk is where the graph replaces a layer-by-layer grep
+chk "skills/impact/SKILL.md"   "trace_path"                "impact walks callers through the graph"
+chk "skills/impact/SKILL.md"   "KHÔNG thấy ranh giới động" "impact distrusts an empty graph result"
+chk "skills/refactor/SKILL.md" "trace_path"                "refactor finds covering tests via the graph"
+chk "skills/refactor/SKILL.md" "phải grep lại trước khi tin" "refactor verifies a claimed coverage gap"
+chk "skills/spec-sync/SKILL.md" "tính năng ma"             "spec-sync greps for ghost features"
+chk "skills/fixbug/SKILL.md"   "không phải nội dung chuỗi"  "fixbug greps for error strings"
+
+# cleanup is a deliberate exception: everything it hunts is a literal string
+chk "skills/cleanup/SKILL.md" "KHÔNG dùng knowledge graph" "cleanup deliberately stays on grep"
+chk "skills/cleanup/SKILL.md" "ngoại lệ có chủ đích"       "cleanup marks that as deliberate"
+
+# Customer-facing comments must not carry internal tool provenance
+for s in review-pr address-feedback; do
+    grep -q "KHÔNG đưa hậu tố" "$ROOT/skills/$s/SKILL.md" \
+        && ok "$s keeps provenance out of the customer comment" \
+        || bad "$s must keep [graph]/[grep] out of the customer comment"
+done
+
+# Commands must disclose the same contract
+for c in plan impact spec-sync review review-pr fixbug refactor feedback; do
+    grep -q "codebase-memory" "$ROOT/commands/$c.md" \
+        && ok "/numokit:$c documents the graph" || bad "/numokit:$c must document the graph"
+    chkw "commands/$c.md" "never a dependency" \
+        "/numokit:$c states the graph is not a dependency"
+done
+
+chk "README.md" "codebase-memory"        "README documents the graph integration"
+chk "README.md" "không phải phụ thuộc"   "README states the graph is optional"
+chk "README.md" "check_index_coverage"   "README names the coverage check"
 
 # Peer review: an independent second scoring, launched before any verdict exists so the
 # brief cannot carry a conclusion, with disagreements escalated instead of reconciled.

@@ -41,6 +41,14 @@ Each requirement then gets a verdict backed by **both sides** — the requiremen
 - **Thừa** — code doing things no requirement mentions (scope creep).
 - **Không kiểm được** — not enough source to judge, and what is missing is named.
 
+With the **codebase-memory** MCP it locates the implementing code through the knowledge graph
+(`search_graph`, `get_code_snippet`) so a verdict can point at the exact line, and without it greps as
+before — **an accelerator, never a dependency.** Every `file:line` it writes down is still verified
+against the real source, because the index can be stale and a **Đạt** citing the wrong line is worse
+than **Không kiểm được**. The clean-code sweep stays on grep: comments, `noqa` and invented identifier
+codes are literal strings, which a structural index does not see. Citations record which tool found
+them.
+
 **It never softens a requirement to match the code.** If a requirement itself looks wrong or stale it
 is still scored as written, and the doubt is raised separately for a human to settle.
 

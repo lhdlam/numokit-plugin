@@ -28,15 +28,29 @@ Không có arg → mặc định lấy `git diff` của working tree; không có
 Liệt kê **symbol** thực sự bị đổi: hàm, class, hằng, endpoint, cột DB — kèm `file:line`.
 Chỉ lấy cái **đổi hành vi**; đổi định dạng/thụt lề thì bỏ qua và nói rõ đã bỏ.
 
+Có graph (luật #13) → `search_graph` để định vị từng symbol, rồi `check_index_coverage` cho các path
+sắp trích dẫn. Chưa phủ hoặc không có graph → grep như thường.
+
 ## Bước 2 — Lan toả ngược (ai gọi tôi?)
 
-Với mỗi symbol hạt giống, tìm **nơi dùng** bằng grep/glob trên toàn repo, theo **từng tầng**:
+Đây là bước graph giúp nhiều nhất: grep chỉ thấy **tên trùng**, `trace_path` đi theo **quan hệ gọi thật**.
+
+Có graph → với mỗi symbol hạt giống, `trace_path` để lấy caller theo **từng tầng**.
+Không có graph, hoặc path chưa phủ index → grep/glob trên toàn repo, cũng theo từng tầng.
+
 - Tầng 1: gọi trực tiếp
 - Tầng 2: gọi gián tiếp qua tầng 1 (chỉ đi tiếp khi tầng 1 đổi hành vi theo)
 
 Dừng khi hết lan hoặc khi đã rõ biên. **Nêu rõ đã dừng ở tầng mấy và vì sao** — đừng ngầm cắt.
-Lan toả qua ranh giới động (DI, reflection, event bus, chuỗi tên, route string) **dễ sót** → đánh dấu
-**"cần xác minh"**, đừng khẳng định là an toàn.
+
+Lan toả qua **ranh giới động** (Qt signal/slot, DI, reflection, event bus, `getattr`/chuỗi tên hàm,
+i18n key, route string) **dễ sót** → đánh dấu **"cần xác minh"**, đừng khẳng định là an toàn.
+
+> **Graph KHÔNG thấy ranh giới động** — nó trả về rỗng, và cái rỗng đó trông y như "không ai gọi".
+> Vì vậy ở các vùng này **vẫn phải grep thêm**, dù graph đã trả lời. Tin một kết quả rỗng của graph tại
+> ranh giới động là cách bỏ sót nguy hiểm nhất của bước này.
+
+Mỗi dòng lan toả ghi nguồn bằng chứng: `[graph]` hoặc `[grep]` (luật #13).
 
 ## Bước 3 — Bảng ảnh hưởng 6 hạng mục
 
@@ -49,7 +63,7 @@ Lan toả qua ranh giới động (DI, reflection, event bus, chuỗi tên, rout
 | **Module / file** | file, class, hàm chịu tác động |
 | **API / hợp đồng công khai** | endpoint, signature, kiểu trả về, sự kiện — **có phá vỡ tương thích không?** |
 | **Schema / dữ liệu** | bảng, cột, index, migration, dữ liệu sẵn có |
-| **Vùng dùng chung** | hàm/component/middleware dùng nhiều nơi |
+| **Vùng dùng chung** | hàm/component/middleware dùng nhiều nơi — `get_architecture` cho cái nhìn tổng quan module nếu có graph |
 | **Test hiện có** | test nhiều khả năng đỏ (file + tên test) |
 | **Tài liệu / spec** | mục tài liệu nay sai so với code |
 
@@ -78,6 +92,9 @@ Trong `${NUMOKIT_ROOT:-docs/numokit}/`:
 ## Kết luận               (phá vỡ tương thích · migration · rủi ro cao nhất · vùng cần xác minh)
 > Review: PENDING
 ```
+
+Mỗi citation mang hậu tố `[graph]` hoặc `[grep]`. Ghi ở đầu báo cáo đã dùng graph hay không:
+`Nguồn định vị: codebase-memory graph` / `Nguồn định vị: grep (không có graph trong phiên)`.
 
 KHÔNG thêm dấu ngày, tên khách hay ghi chú quyết định của khách.
 

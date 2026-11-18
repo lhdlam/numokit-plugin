@@ -112,6 +112,11 @@ Chấm xong **rồi** mới xem kết quả của peer reviewer. Xem trước l�
 **Đạt** là verdict khó nhất, không phải dễ nhất: phải chỉ được **đúng dòng code** thoả yêu cầu.
 Chỉ "nhìn có vẻ ổn" thì là **Không kiểm được**.
 
+Có graph (luật #13) → `search_graph` định vị symbol hiện thực yêu cầu, `get_code_snippet` đọc đúng
+thân hàm để chỉ được dòng. **Nhưng `file:line` viết vào báo cáo phải xác minh từ source thật** — index
+có thể lỗi thời, và một verdict Đạt dẫn chứng sai còn tệ hơn Không kiểm được. Mỗi citation ghi
+`[graph]` hoặc `[grep]`.
+
 ## Bước 4 — Thu kết quả peer review và đối chiếu
 
 Giờ mới đọc kết quả của `requirement-reviewer`, đặt cạnh bảng của mình, so **từng yêu cầu**.
@@ -143,7 +148,8 @@ hiện. Bỏ sót là chuyện bình thường, che việc bỏ sót thì không
 
 Ngoài việc đúng/sai yêu cầu, soát thêm trên **chính diff này**:
 - **Chuẩn code sạch** (luật #7–#12): comment còn sót, comment tiếng Việt, mã định danh tự đặt,
-  `noqa`/`@ts-ignore`, ghi chú quyết định khách / dấu ngày
+  `noqa`/`@ts-ignore`, ghi chú quyết định khách / dấu ngày — **soát bằng grep, không phải graph**:
+  đây đều là chuỗi literal, graph lập chỉ mục cấu trúc nên không thấy
 - **Xử lý lỗi**: nhánh lỗi của yêu cầu có được làm không, hay chỉ có happy path
 - **Hợp đồng công khai**: có phá vỡ tương thích mà yêu cầu không nhắc tới không
 - **Test**: thay đổi này có test đi kèm không
