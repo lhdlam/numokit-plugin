@@ -105,7 +105,7 @@ Và nhắc lại luật #9 — **trong code không có comment tiếng Việt**,
 
 | Lệnh | Việc | Chạm code? |
 |---|---|---|
-| `/numokit:plan <task>` | Phân tích task → đo ảnh hưởng → so khớp spec → `plan-<slug>.md` 🚦 | không (chỉ đọc) |
+| `/numokit:plan <task>` | Phân tích task → đo ảnh hưởng → so khớp spec → **peer review bản plan** → `plan-<slug>.md` 🚦 | không (chỉ đọc) |
 | `/numokit:impact <thay đổi>` | Đo blast radius phía code: module · API · DB · vùng dùng chung | không (chỉ đọc) |
 | `/numokit:spec-sync [phạm vi]` | Dò code đã trôi khỏi tài liệu → `spec-drift.md` | không (chỉ đọc) |
 | `/numokit:review <nhánh\|PR>` | Đối chiếu code vừa làm với **yêu cầu của khách** → verdict từng yêu cầu, **chấm 2 lượt độc lập** (peer review) | không (chỉ đọc) |
@@ -121,7 +121,30 @@ khi sửa. Hai lệnh còn lại không sửa code nhưng **đưa nội dung ra 
 `review-pr` vì đăng comment là hành vi công khai, `publish` vì đẩy tài liệu của khách cho cả team đọc.
 Artifact kết thúc bằng `> Review: PENDING`; người duyệt đổi thành `> Review: APPROVED`.
 
-## Peer review (`/numokit:review`)
+## Peer review — hai kiểu, cho hai việc khác nhau
+
+numokit có **hai** agent peer review, và chúng chống hai nguy cơ khác nhau. Đừng lẫn.
+
+| | `requirement-reviewer` (`/numokit:review`) | `plan-reviewer` (`/numokit:plan`) |
+|---|---|---|
+| Kiểu | **chấm độc lập** rồi so hai bảng | **đọc ngược** chính bản plan để tìm lỗi |
+| Thấy kết luận lượt đầu? | **KHÔNG** — bị cấm | **CÓ, buộc phải thấy** (plan là đối tượng review) |
+| Nguy cơ | bị mồi bằng verdict | **bị bản plan thuyết phục** |
+| Chống bằng | brief không chứa verdict, phóng trước khi chấm | buộc **tự mở từng nguồn** trước khi nói "đúng"; **tự đo ảnh hưởng trước** khi xem bảng của plan |
+
+### `plan-reviewer` — soát bản plan
+
+Plan do chính agent phân tích task viết ra nên mang đúng điểm mù của agent đó. `plan-reviewer`:
+- **kiểm từng trích dẫn** từ nguồn thật — trích dẫn **bịa** là lỗi nặng nhất, trích dẫn trông đúng định
+  dạng lại là thứ dễ bịa nhất
+- **tự đo blast radius trước**, rồi so để tìm chỗ plan bỏ sót hoặc hạ mức
+- **chia ba loại câu hỏi**: ✅ đã có đáp án trong nguồn (kèm đáp án + trích dẫn — người duyệt không phải
+  trả lời) · ❓ thật sự cần người · ⚠ hỏi sai/mơ hồ — cộng chiều ngược: chỗ đáng hỏi mà plan **không** hỏi
+
+> Một câu hỏi mà đáp án nằm ngay trong tài liệu là **lãng phí thời gian người duyệt**, và tệ hơn, làm
+> họ mất tin vào những câu hỏi còn lại.
+
+### `requirement-reviewer` — chấm lại yêu cầu
 
 Agent vừa viết code biết mình **định** làm gì, nên đọc diff qua lớp ý định đó → thấy "đạt" ở chỗ thực
 ra chưa. `/numokit:review` vì vậy mở thêm agent `requirement-reviewer` chấm lại **độc lập**:
@@ -133,7 +156,11 @@ ra chưa. `/numokit:review` vì vậy mở thêm agent `requirement-reviewer` ch
 - **Lệch nhau → không bên nào thắng.** Lấy phía thận trọng hơn (`Đạt < Không kiểm được < Lệch/Thiếu`),
   đánh dấu tranh chấp, nêu dẫn chứng hai bên, đẩy lên người.
 - **Khớp nhau chỉ là rủi ro thấp hơn, không phải bảo đảm** — hai agent cùng đọc sai một chỗ là chuyện
-  có thật.
+  có thật. Với `plan-reviewer` cũng vậy: **không tìm ra lỗi không chứng minh plan đúng.**
+
+Cả hai đều **chỉ đọc**, không có Edit/Write: agent review không được sửa thứ mình review. Nền không có
+Agent tool (Cursor…) thì **không chạy được** peer review — phải nói rõ và ghi vào artifact, **cấm tự
+đóng cả hai vai**.
 
 ## Artifact & review gate
 

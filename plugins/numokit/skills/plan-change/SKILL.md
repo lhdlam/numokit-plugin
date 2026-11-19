@@ -1,6 +1,6 @@
 ---
 name: plan-change
-description: Analyse ONE incoming dev task (feature, change request, bug batch), measure its blast radius across modules/APIs/schema/shared code/tests/docs, cross-check it against the spec and raise any deviation, then produce plan-<slug>.md for a human to approve BEFORE any code is written. Use via /numokit:plan <mô tả task | nhánh/tag git>.
+description: Analyse ONE incoming dev task (feature, change request, bug batch), measure its blast radius across modules/APIs/schema/shared code/tests/docs, cross-check it against the spec and raise any deviation, then have an independent plan-reviewer subagent audit the finished plan — verifying every citation against real source, hunting missed impact, and resolving the open questions that are in fact already answered in the sources — before a human approves it and any code is written. Use via /numokit:plan <mô tả task | nhánh/tag git>.
 license: MIT
 ---
 
@@ -21,6 +21,12 @@ tốn công hiện thực.
 3. **Lệch spec thì RAISE, không tự quyết** → `open-questions.md`.
 4. **Đo ảnh hưởng trung thực.** Không hạ mức rủi ro cho kế hoạch đẹp. Không chắc → ghi "cần xác minh".
 5. **Dừng ở plan.** Viết xong `> Review: PENDING` là DỪNG. Không tự chạy sang hiện thực.
+6. **Peer review bắt buộc** (Bước 5). Plan do chính agent phân tích task viết ra, nên nó mang đúng điểm
+   mù của agent đó: ảnh hưởng không nghĩ tới cũng là ảnh hưởng không biết là mình đã sót, và câu hỏi
+   mình không trả lời được thì trông như câu không ai trả lời được.
+7. **Câu hỏi nào có đáp án trong nguồn thì KHÔNG được hỏi người.** Mỗi câu hỏi phải có trạng thái
+   (Bước 5). Hỏi một điều mà đáp án nằm ngay trong tài liệu là lãng phí thời gian người duyệt — và làm
+   họ mất tin vào những câu hỏi còn lại.
 
 ## Bước 0 — Đầu vào & định phạm vi
 
@@ -93,15 +99,82 @@ Trong `${NUMOKIT_ROOT:-docs/numokit}/`:
 ## Lệch spec phát hiện được   (bảng Bước 3; không có → "không phát hiện lệch")
 ## Rủi ro & cách giảm thiểu
 ## Các bước đề xuất       (thứ tự hiện thực, chạm gì, kiểm chứng ra sao)
-## Câu hỏi cần trả lời
+
+## Câu hỏi
+| Câu hỏi | Trạng thái | Đáp án / Đã tìm ở đâu |
+|---|---|---|
+| <...> | ✅ Đã có đáp án | <đáp án> — [SRS §4.2] |
+| <...> | ❓ Cần người trả lời | đã tìm: SRS §3–§5, app/auth.ts |
+
+Cần người trả lời: N câu    (0 → ghi "không còn câu hỏi nào chờ người")
+
+## Peer review
+Trích dẫn: X khớp / Y sai / **Z bịa**
+Ảnh hưởng peer phát hiện thêm: ...
+Câu hỏi peer trả lời giúp: ...
+(không chạy được → `Peer review: KHÔNG chạy` + lý do)
+
 > Review: PENDING
 ```
 
 KHÔNG thêm dấu ngày, tên khách, số hợp đồng hay ghi chú quyết định của khách.
 
-## Bước 5 — Dừng & bàn giao
+## Bước 5 — Peer review bản plan (bắt buộc)
 
-Tóm tắt: phạm vi, **các mục ảnh hưởng mức Cao**, số lệch spec đã raise, câu hỏi đang chờ.
+Mở agent `numokit:plan-reviewer` (Agent tool), truyền: **đường dẫn bản plan vừa viết**, phạm vi code,
+và đường dẫn tài liệu yêu cầu.
+
+> **Khác peer review của `/numokit:review`.** Ở đó agent thứ hai **không được thấy** verdict của lượt
+> đầu, nên nó độc lập thật. Ở đây **đối tượng review chính là bản plan** — không thể giấu. Nguy cơ vì
+> vậy đổi chiều: không phải bị mồi bằng kết luận, mà **bị bản plan thuyết phục**. Một plan viết mạch
+> lạc, trích dẫn đầy đủ, rất dễ được đọc thành "đúng rồi".
+>
+> Đó là lý do `plan-reviewer` bị buộc **tự mở từng nguồn** trước khi kết luận bất cứ điều gì là đúng,
+> và **tự đo blast radius trước** khi xem bảng của plan.
+
+Nền không có Agent tool (Cursor…) → **không chạy được** peer review. Nói rõ với user, ghi vào plan
+`Peer review: KHÔNG chạy` kèm lý do. **Cấm tự đóng cả hai vai** — tự đọc lại plan của mình hai lần vẫn
+là cùng một điểm mù.
+
+### Thu kết quả và xử lý
+
+| Peer báo | Xử lý |
+|---|---|
+| **Trích dẫn bịa** (`fabricated`) | **nặng nhất** — xoá khẳng định đó khỏi plan hoặc tìm lại nguồn thật. Không được giữ |
+| **Trích dẫn sai** (`mismatched`) | sửa lại theo nguồn thật, hoặc hạ thành "cần xác minh" |
+| **Ảnh hưởng bỏ sót** | **nhập vào bảng Bước 2**, ghi rõ do peer phát hiện |
+| **Hạ mức rủi ro** | nâng lên theo bằng chứng của peer (luật #4: không hạ mức cho plan đẹp) |
+| **Câu hỏi đã có đáp án** | **ghi đáp án + nguồn vào plan, chuyển khỏi danh sách chờ người** |
+| **Thiếu câu hỏi** | thêm vào mục "Câu hỏi cần trả lời" |
+| **"NGOÀI phạm vi" thực ra bắt buộc** | đưa lại vào phạm vi, hoặc nêu thành câu hỏi cho người quyết |
+| **Bước phụ thuộc câu hỏi chưa có đáp án** | plan **chưa chốt được phạm vi** — ghi rõ "chờ phân xử" |
+
+**KHÔNG tự phân xử khi hai bên lệch nhau** về mức rủi ro hay về một lệch spec: lấy phía **thận trọng
+hơn**, ghi rõ hai bên nói gì, đẩy lên người.
+
+> **Peer không tìm ra lỗi KHÔNG chứng minh plan đúng.** Nó chỉ hạ rủi ro. Đừng diễn giải thành bảo đảm.
+
+## Bước 6 — Soát lại câu hỏi (mỗi câu một trạng thái)
+
+Sau khi nhập kết quả peer, **mọi** câu hỏi trong plan phải mang một trạng thái:
+
+| Trạng thái | Nghĩa |
+|---|---|
+| ✅ **Đã có đáp án** | trả lời được từ nguồn — ghi **đáp án + trích dẫn**, người duyệt không phải trả lời |
+| ❓ **Cần người trả lời** | thật sự không có nguồn — ghi **đã tìm ở đâu** |
+| ⚠ **Hỏi lại cho rõ** | câu hỏi mơ hồ/hỏi nhầm chỗ — viết lại trước khi đưa người |
+
+Còn câu nào ở trạng thái ❓ hoặc ⚠ → nêu bật ở Bước 7, và **plan không nên được đánh `APPROVED`** khi
+một bước hiện thực phụ thuộc trực tiếp vào câu đó.
+
+## Bước 7 — Dừng & bàn giao
+
+Tóm tắt: phạm vi, **các mục ảnh hưởng mức Cao**, số lệch spec đã raise, và **trạng thái câu hỏi**
+(bao nhiêu đã có đáp án / bao nhiêu còn cần người).
+
+Nêu riêng kết quả peer review: trích dẫn bịa/sai, ảnh hưởng bỏ sót, câu hỏi peer đã trả lời giúp.
+**Trích dẫn bịa phải nói thẳng**, đừng gói trong ngôn từ mềm.
+
 Nhắc người duyệt plan (`PENDING` → `APPROVED`) rồi mới hiện thực.
 
 Sau khi APPROVED, bước kế theo loại task:
@@ -114,4 +187,5 @@ Trên Claude Code, `hooks/pre-tool-gate.sh` **chặn `fixbug` và `refactor` khi
 — đã lập plan thì phải duyệt trước khi sửa code. Chưa lập plan nào thì không chặn (tương thích ngược).
 
 ## Đầu ra
-`plan-<slug>.md` (`> Review: PENDING`) + `open-questions.md` cập nhật nếu phát hiện lệch spec.
+`plan-<slug>.md` (`> Review: PENDING`) — đã qua peer review, mỗi câu hỏi mang một trạng thái, trích dẫn
+đã được kiểm từ nguồn thật — cộng `open-questions.md` cập nhật nếu phát hiện lệch spec.

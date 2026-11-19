@@ -12,6 +12,7 @@ chk() { grep -q -- "$2" "$ROOT/$1" 2>/dev/null && ok "$3" || bad "$3 ($1)"; }
 # Wrap-insensitive variant: the docs wrap at ~100 columns, so a sentence-length
 # assertion would otherwise break whenever a line happens to fold.
 chkw() { tr -s '[:space:]' ' ' < "$ROOT/$1" 2>/dev/null | grep -q -- "$2" && ok "$3" || bad "$3 ($1)"; }
+has_file() { [[ -f "$ROOT/$1" ]] && ok "$2" || bad "missing $1"; }
 
 ENTRY="skills/using-numokit/SKILL.md"
 
@@ -101,10 +102,57 @@ chk "README.md" "codebase-memory"        "README documents the graph integration
 chk "README.md" "không phải phụ thuộc"   "README states the graph is optional"
 chk "README.md" "check_index_coverage"   "README names the coverage check"
 
+# plan-reviewer: adversarial audit of the finished plan. Unlike requirement-reviewer it MUST
+# see what it reviews, so the defence is different — verify every source itself, and measure
+# impact before looking at the plan's own table.
+PA="agents/plan-reviewer.md"
+has_file "$PA" "plan-reviewer agent exists"
+head -5 "$ROOT/$PA" | grep -q "^name: plan-reviewer" \
+    && ok "plan-reviewer has frontmatter name" || bad "plan-reviewer frontmatter name"
+grep -q "^tools: " "$ROOT/$PA" && ok "plan-reviewer declares its tools" \
+    || bad "plan-reviewer must declare tools"
+if grep -qE "^tools: .*(Edit|Write|NotebookEdit)" "$ROOT/$PA"; then
+    bad "plan-reviewer must not have write tools"
+else
+    ok "plan-reviewer is read-only (no Edit/Write)"
+fi
+chkw "$PA" "KHÔNG kết luận một khẳng định nào trong plan là đúng trước khi tự đọc nguồn" \
+    "plan-reviewer verifies every claim against source first"
+chk  "$PA" "Trích dẫn bịa"          "plan-reviewer treats a fabricated citation as the worst fault"
+chkw "$PA" "Tự đo ảnh hưởng, rồi mới so" "plan-reviewer measures impact before reading the plan's table"
+chk  "$PA" "KHÔNG viết lại plan"    "plan-reviewer never rewrites the plan"
+chk  "$PA" "Đã có đáp án"           "plan-reviewer finds questions already answered in the sources"
+chk  "$PA" "Cần người trả lời"      "plan-reviewer keeps questions that genuinely need a human"
+chk  "$PA" "Thiếu câu hỏi"          "plan-reviewer flags ambiguities the plan failed to ask about"
+chkw "$PA" "lãng phí thời gian của người duyệt" "plan-reviewer states why a needless question costs"
+chk  "$PA" "NGOÀI phạm vi"          "plan-reviewer checks the out-of-scope list"
+chk  "$PA" "#13"                    "plan-reviewer follows the graph rule"
+chk  "$PA" "ranh giới động"          "plan-reviewer keeps the dynamic-boundary fallback"
+
+PL="skills/plan-change/SKILL.md"
+chk  "$PL" "plan-reviewer"          "plan dispatches the plan reviewer"
+chk  "$PL" "numokit:plan-reviewer"  "plan uses the namespaced agent name"
+chk  "$PL" "Peer review bắt buộc"   "plan runs peer review by default"
+chkw "$PL" "bị bản plan thuyết phục" "plan names the risk specific to reviewing a document"
+chkw "$PL" "tự mở từng nguồn"        "plan requires the reviewer to open sources itself"
+chk  "$PL" "Trích dẫn bịa"          "plan handles a fabricated citation"
+chk  "$PL" "KHÔNG tự phân xử"       "plan does not adjudicate a severity disagreement"
+chkw "$PL" "KHÔNG chứng minh plan đúng" "plan does not treat a clean review as proof"
+chk  "$PL" "tự đóng cả hai vai"     "plan refuses to fake peer review by itself"
+chk  "$PL" "KHÔNG chạy"             "plan discloses a run without peer review"
+
+# Questions must each carry a status, and an answered one must not be put to the human
+chkw "$PL" "KHÔNG được hỏi người"   "plan does not ask what the sources already answer"
+chk  "$PL" "Đã có đáp án"           "plan marks questions answered from the sources"
+chk  "$PL" "Cần người trả lời"      "plan marks questions that need a human"
+chk  "$PL" "Hỏi lại cho rõ"         "plan marks malformed questions"
+chkw "$PL" "không nên được đánh" "plan blocks APPROVED while a step waits on a question"
+chk  "commands/plan.md" "plan-reviewer" "plan command names the reviewer agent"
+chk  "commands/plan.md" "already answered in the sources" "plan command states the question triage"
+
 # Peer review: an independent second scoring, launched before any verdict exists so the
 # brief cannot carry a conclusion, with disagreements escalated instead of reconciled.
 AG="agents/requirement-reviewer.md"
-has_file() { [[ -f "$ROOT/$1" ]] && ok "$2" || bad "missing $1"; }
 has_file "$AG" "requirement-reviewer agent exists"
 head -5 "$ROOT/$AG" | grep -q "^name: requirement-reviewer" \
     && ok "requirement-reviewer has frontmatter name" || bad "requirement-reviewer frontmatter name"
