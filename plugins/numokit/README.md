@@ -30,7 +30,7 @@
 
 | Lệnh | Việc | Chạm code? |
 |---|---|---|
-| `/numokit:plan <task>` | Phân tích task → đo ảnh hưởng 6 hạng mục → so khớp spec → `plan-<slug>.md` 🚦 | không |
+| `/numokit:plan <task>` | Phân tích task → đo ảnh hưởng 6 hạng mục → so khớp spec → **peer review bản plan** → `plan-<slug>.md` 🚦 | không |
 | `/numokit:impact <thay đổi>` | Đo blast radius: module · API · schema · vùng dùng chung · test · tài liệu | không |
 | `/numokit:spec-sync [phạm vi]` | Dò code đã trôi khỏi tài liệu (hai chiều) → `spec-drift.md` | không |
 | `/numokit:review <nhánh\|PR>` | Đối chiếu code vừa làm với **yêu cầu của khách** → verdict từng yêu cầu, **peer review 2 lượt** | không |
@@ -122,7 +122,45 @@ Hai ngoại lệ có chủ đích:
 - **Comment gửi khách** (`review-pr`, `feedback`) **không mang hậu tố `[graph]`/`[grep]`** — nguồn bằng
   chứng là thông tin nội bộ, chỉ nằm trong ghi chú và bản nháp lưu lại.
 
-## Peer review — `/numokit:review` chấm hai lượt
+## Peer review — hai kiểu, cho hai nguy cơ khác nhau
+
+| | `requirement-reviewer` → `/numokit:review` | `plan-reviewer` → `/numokit:plan` |
+|---|---|---|
+| Kiểu | **chấm độc lập** rồi so hai bảng | **đọc ngược** bản plan để tìm lỗi |
+| Thấy kết luận lượt đầu? | **KHÔNG** (bị cấm) | **CÓ** — plan chính là đối tượng review |
+| Nguy cơ | bị mồi bằng verdict | **bị bản plan thuyết phục** |
+| Chống bằng | brief sạch, phóng trước khi chấm | buộc tự mở từng nguồn; tự đo ảnh hưởng **trước** khi xem bảng của plan |
+
+Cả hai **chỉ đọc** — không Edit/Write, vì agent review không được sửa thứ mình review.
+
+### `plan-reviewer` — soát bản plan vừa tạo
+
+Plan do chính agent phân tích task viết ra, nên nó mang đúng điểm mù của agent đó: ảnh hưởng không nghĩ
+tới cũng là ảnh hưởng không biết mình đã sót.
+
+| Nó kiểm | Vì sao |
+|---|---|
+| **Từng trích dẫn**, mở nguồn thật | Trích dẫn **bịa** là lỗi nặng nhất — mà trích dẫn trông đúng định dạng lại là thứ dễ bịa nhất |
+| **Tự đo blast radius trước**, rồi mới so | Xem bảng của plan trước thì chỉ xác nhận những ô đã có. API công khai và ranh giới động là hai chỗ hay sót nhất |
+| **Ba loại câu hỏi** + chiều ngược | xem dưới |
+| **"NGOÀI phạm vi"** | cắt một việc *bắt buộc* ra khỏi phạm vi làm plan trông gọn mà đẩy rủi ro về sau |
+
+**Soát câu hỏi** — mỗi câu trong plan nhận một trạng thái:
+
+| | Nghĩa | Kèm |
+|---|---|---|
+| ✅ **Đã có đáp án** | trả lời được từ nguồn sẵn có | **đáp án + trích dẫn** — người duyệt không phải trả lời |
+| ❓ **Cần người trả lời** | thật sự không có nguồn | **đã tìm ở đâu** |
+| ⚠ **Hỏi lại cho rõ** | mơ hồ / hỏi nhầm chỗ | vấn đề của câu hỏi |
+| ➕ **Thiếu câu hỏi** | chỗ mơ hồ plan **không** hỏi mà đáng hỏi | peer bổ sung |
+
+> Một câu hỏi mà đáp án nằm ngay trong tài liệu là **lãng phí thời gian người duyệt** — và tệ hơn, làm
+> họ mất tin vào những câu hỏi còn lại.
+
+Plan **không nên được đánh `APPROVED`** khi một bước hiện thực phụ thuộc trực tiếp vào câu hỏi còn ở ❓
+hoặc ⚠. Và `plan-reviewer` không tìm ra lỗi **không** chứng minh plan đúng — nó chỉ hạ rủi ro.
+
+## `requirement-reviewer` — `/numokit:review` chấm hai lượt
 
 Agent vừa viết code biết mình **định** làm gì, nên nó đọc diff qua lớp ý định đó và thấy yêu cầu đã
 thoả ở chỗ thực ra chưa. Tự review là tự xác nhận. Nên `/numokit:review` mở thêm một agent
